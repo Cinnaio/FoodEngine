@@ -1,0 +1,17 @@
+messages:
+  plugin:
+    enabled: "<color:#6BFF95>FoodEngine <color:#E6E6E6>已成功启用"
+    disabled: "<color:#A0A0A0>FoodEngine 已禁用"
+  reload:
+    started: "<color:#A0A0A0>正在重载 FoodEngine 配置..."
+    success: "<color:#6BFF95>FoodEngine 配置已成功重载"
+    failure: "<color:#FF6B6B>配置重载失败，请检查控制台以获取详细信息"
+  error:
+    no_permission: "<color:#FF6B6B>你没有权限使用此命令"
+    unknown_subcommand: "<color:#FF6B6B>未知子命令"
+    no_food_defined: "<color:#FF6B6B>该物品没有定义食物效果"
+    internal: "<color:#FF6B6B>处理食物效果时发生内部错误"
+  combo:
+    triggered: "<color:#FFD479>连携效果已触发！"
+    cooldown: "<color:#A0A0A0>连携效果冷却中。"
+

@@ -1,0 +1,19 @@
+name: FoodEngine
+version: '${version}'
+main: com.github.cinnaio.foodEngine.FoodEngine
+api-version: '1.20'
+description: 'FoodEngine - Scriptable food effect engine'
+author: 'cinnaio'
+folia-supported: true
+libraries:
+  - org.xerial:sqlite-jdbc:3.46.1.0
+dependencies:
+  server:
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    CraftEngine:
+      load: BEFORE
+      required: true
+      join-classpath: true

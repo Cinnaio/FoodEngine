@@ -1,0 +1,44 @@
+foods:
+  green_tea:
+    actions:
+      # title
+      - "[title] <color:#FFD479>You feel refreshed"
+      # message
+      - "[message] <color:#A0A0A0>A warm tea relaxes your mind."
+      # broadcast
+      - "[broadcast] <color:#FFD479>%player_name% <color:#A0A0A0>drank a cup of green tea"
+      # command (flags: -as:console / -as:player / -as:op)
+      - "[command] money give %player_name% 50 -as:console"
+      # potion: <effect> <durationTicks> <amplifier>
+      - "[potion] SPEED 200 0"
+      # heal: <amount>
+      - "[heal] 2"
+      # attribute: <attributeKey> <amount> <durationTicks>
+      # attributeKey:
+      # - short key: movement_speed / max_health  (maps to minecraft:movement_speed etc; legacy generic.* also supported)
+      # - namespaced short key: minecraft:movement_speed
+      # - full key (legacy): minecraft:generic.movement_speed
+      # you can check the attribute key in https://zh.minecraft.wiki/w/%E5%B1%9E%E6%80%A7?variant=zh-cn
+      - "[attribute] movement_speed 0.02 200"
+      # chance: <probability 0.0-1.0> <action>
+      - "[chance] 0.25 [potion] REGENERATION 200 0"
+      # condition: {condition: expression}
+      - "[message] <color:#6BFF95>Bonus reward for level 10+!{condition: %player_level% >= 10}"
+      - "[chance] 0.50 [command] money give %player_name% 100 -as:console{condition: %player_level% >= 10}"
+
+  black_tea:
+    combo:
+      - conditions:
+          food_engine_id: green_tea
+          max_interval: 60
+          trigger: 2
+        cooldown: 60
+        actions:
+          - "[title] <color:#FFD479>You feel refreshed"
+      - conditions:
+          material: apple
+          max_interval: 60
+          trigger: 3
+        cooldown: 60
+        actions:
+          - "[title] <color:#FFD479>You feel refreshed"

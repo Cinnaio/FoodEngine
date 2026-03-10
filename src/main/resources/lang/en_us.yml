@@ -1,0 +1,17 @@
+messages:
+  plugin:
+    enabled: "<color:#6BFF95>FoodEngine <color:#E6E6E6>successfully enabled"
+    disabled: "<color:#A0A0A0>FoodEngine disabled"
+  reload:
+    started: "<color:#A0A0A0>Reloading FoodEngine configuration..."
+    success: "<color:#6BFF95>FoodEngine configuration reloaded successfully"
+    failure: "<color:#FF6B6B>Configuration reload failed, check console for details"
+  error:
+    no_permission: "<color:#FF6B6B>You do not have permission to use this command"
+    unknown_subcommand: "<color:#FF6B6B>Unknown subcommand"
+    no_food_defined: "<color:#FF6B6B>No food is defined for this item"
+    internal: "<color:#FF6B6B>An internal error occurred while processing food effects"
+  combo:
+    triggered: "<color:#FFD479>Food combo activated!"
+    cooldown: "<color:#A0A0A0>Your food combo is on cooldown."
+

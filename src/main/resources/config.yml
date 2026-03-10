@@ -1,0 +1,17 @@
+debug: false
+language: en_us
+
+# If true, copy foods/example_foods.yml into plugins/FoodEngine/foods/ when missing.
+auto_load_example_foods: false
+
+storage:
+  combo:
+    sqlite:
+      enabled: true
+      file: combo.db
+
+  history:
+    sqlite:
+      enabled: true
+      file: combo.db
+
