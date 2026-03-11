@@ -64,7 +64,7 @@ tasks.register('buildToServer', Copy) {
     dependsOn shadowJar
 
     from("$buildDir/libs")
-    include("*.jar")
+    include("*-all.jar")
 
     into("E:/Database/Minecraft/Server/survival_20260120_1444/plugins")
 }

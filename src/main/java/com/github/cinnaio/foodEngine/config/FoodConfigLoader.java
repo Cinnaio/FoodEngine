@@ -2,7 +2,7 @@ package com.github.cinnaio.foodEngine.config;
 
 import com.github.cinnaio.foodEngine.FoodEngine;
 import com.github.cinnaio.foodEngine.manager.FoodRegistry;
-import com.github.cinnaio.foodEngine.model.FoodCombo;
+import com.github.cinnaio.foodEngine.model.FoodConditions;
 import com.github.cinnaio.foodEngine.model.ParsedAction;
 import com.github.cinnaio.foodEngine.parser.ActionParser;
 import org.bukkit.Material;
@@ -56,10 +56,17 @@ public class FoodConfigLoader {
                     continue;
                 }
                 List<String> actionsRaw = foodSection.getStringList("actions");
-                List<ParsedAction> parsed = parser.parseList(actionsRaw);
-                List<FoodCombo> combos = parseCombos(foodSection);
-                if (!parsed.isEmpty() || (combos != null && !combos.isEmpty())) {
-                    registry.register(id, parsed, combos);
+                List<ParsedAction> actions = parser.parseList(actionsRaw);
+
+                // parse overuse_actions if present
+                List<String> overuseRaw = foodSection.getStringList("overuse_actions");
+                List<ParsedAction> overuseActions = parser.parseList(overuseRaw);
+
+                // parse single conditions object (optional)
+                FoodConditions conditions = parseConditions(foodSection.getConfigurationSection("conditions"));
+
+                if (!actions.isEmpty() || conditions != null || !overuseActions.isEmpty()) {
+                    registry.register(id, actions, conditions, overuseActions);
                     totalFoods++;
                 }
             }
@@ -70,63 +77,44 @@ public class FoodConfigLoader {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private List<FoodCombo> parseCombos(ConfigurationSection foodSection) {
-        if (!foodSection.isList("combo")) {
-            return List.of();
+    private FoodConditions parseConditions(ConfigurationSection condSection) {
+        if (condSection == null) {
+            return null;
         }
-        List<?> list = foodSection.getList("combo");
-        if (list == null || list.isEmpty()) {
-            return List.of();
+        Map<String, Object> condMap = condSection.getValues(false);
+        if (condMap == null || condMap.isEmpty()) {
+            return null;
         }
 
-        java.util.ArrayList<FoodCombo> combos = new java.util.ArrayList<>();
-        for (Object entry : list) {
-            if (!(entry instanceof Map<?, ?> comboMap)) {
-                continue;
+        String foodEngineId = getString(condMap, "food_engine_id");
+        String materialName = getString(condMap, "material");
+        Material material = null;
+        if (materialName != null && !materialName.isBlank()) {
+            try {
+                material = Material.valueOf(materialName.trim().toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+                material = null;
             }
-
-            Object conditionsObj = comboMap.get("conditions");
-            if (!(conditionsObj instanceof Map<?, ?> condMap)) {
-                continue;
-            }
-
-            String foodEngineId = getString(condMap, "food_engine_id");
-            String materialName = getString(condMap, "material");
-            Material material = null;
-            if (materialName != null && !materialName.isBlank()) {
-                try {
-                    material = Material.valueOf(materialName.trim().toUpperCase());
-                } catch (IllegalArgumentException ignored) {
-                    material = null;
-                }
-            }
-
-            long maxInterval = getLong(condMap, "max_interval", 0L);
-            int trigger = (int) getLong(condMap, "trigger", 1L);
-            FoodCombo.ComboConditions conditions = new FoodCombo.ComboConditions(foodEngineId, material, maxInterval, trigger);
-
-            long cooldown = getLong(comboMap, "cooldown", 0L);
-
-            Object actionsObj = comboMap.get("actions");
-            if (!(actionsObj instanceof List<?> actionsListRaw)) {
-                continue;
-            }
-
-            java.util.ArrayList<String> strings = new java.util.ArrayList<>();
-            for (Object a : actionsListRaw) {
-                if (a instanceof String s) {
-                    strings.add(s);
-                }
-            }
-            List<ParsedAction> parsedActions = parser.parseList(strings);
-            if (parsedActions.isEmpty()) {
-                continue;
-            }
-
-            combos.add(new FoodCombo(conditions, cooldown, parsedActions));
         }
-        return combos;
+
+        long maxInterval = getLong(condMap, "max_interval", 0L);
+        int trigger = (int) getLong(condMap, "trigger", 1L);
+        Integer overuse = null;
+        long overuseLong = getLong(condMap, "overuse_trigger", -1L);
+        if (overuseLong >= 0L) {
+            overuse = (int) overuseLong;
+        }
+
+        if (overuse != null && trigger >= overuse) {
+            plugin.getLogger().warning("Invalid conditions: trigger >= overuse_trigger for food. Conditions disabled.");
+            return null;
+        }
+
+        if ((foodEngineId == null || foodEngineId.isBlank()) && material == null) {
+            return null;
+        }
+
+        return new FoodConditions(foodEngineId, material, maxInterval, trigger, overuse);
     }
 
     private String getString(Map<?, ?> map, String key) {
@@ -149,4 +137,3 @@ public class FoodConfigLoader {
         }
     }
 }
-

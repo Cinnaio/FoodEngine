@@ -11,7 +11,3 @@ messages:
     unknown_subcommand: "<color:#FF6B6B>未知子命令"
     no_food_defined: "<color:#FF6B6B>该物品没有定义食物效果"
     internal: "<color:#FF6B6B>处理食物效果时发生内部错误"
-  combo:
-    triggered: "<color:#FFD479>连携效果已触发！"
-    cooldown: "<color:#A0A0A0>连携效果冷却中。"
-

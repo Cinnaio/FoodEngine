@@ -1,6 +1,6 @@
 package com.github.cinnaio.foodEngine.manager;
 
-import com.github.cinnaio.foodEngine.model.FoodCombo;
+import com.github.cinnaio.foodEngine.model.FoodConditions;
 import com.github.cinnaio.foodEngine.model.ParsedAction;
 import com.github.cinnaio.foodEngine.storage.ComboStorage;
 import org.bukkit.Material;
@@ -18,53 +18,39 @@ public class ComboManager {
     }
 
     public List<ParsedAction> tryTrigger(UUID playerId,
-                                        String currentFoodId,
-                                        List<FoodCombo> combos,
-                                        Deque<FoodHistoryManager.FoodHistoryEntry> history,
-                                        long nowMillis) {
-        if (combos == null || combos.isEmpty()) {
-            return null;
+                                         String currentFoodId,
+                                         FoodConditions conditions,
+                                         List<ParsedAction> actions,
+                                         List<ParsedAction> overuseActions,
+                                         Deque<FoodHistoryManager.FoodHistoryEntry> history,
+                                         long nowMillis) {
+        if (conditions == null) {
+            return actions;
         }
 
-        boolean anyOnCooldown = false;
-
-        for (int i = 0; i < combos.size(); i++) {
-            FoodCombo combo = combos.get(i);
-            long until = storage.getCooldownUntilMillis(playerId, currentFoodId, i);
-            if (until > nowMillis) {
-                anyOnCooldown = true;
-                continue;
-            }
-
-            if (!matches(combo.conditions(), history, nowMillis)) {
-                continue;
-            }
-
-            long cdMillis = Math.max(0L, combo.cooldownSeconds()) * 1000L;
-            if (cdMillis > 0) {
-                storage.setCooldownUntilMillis(playerId, currentFoodId, i, nowMillis + cdMillis);
-            }
-            storage.incrementTriggerCount(playerId, currentFoodId, i);
-            return combo.actions();
+        int count = countMatches(conditions, history, nowMillis);
+        Integer overuse = conditions.overuseTrigger();
+        if (overuse != null && count >= overuse) {
+            storage.incrementTriggerCount(playerId, currentFoodId, 0);
+            return overuseActions == null ? List.of() : overuseActions;
         }
-
-        return anyOnCooldown ? List.of() : null;
+        if (count >= Math.max(1, conditions.trigger())) {
+            storage.incrementTriggerCount(playerId, currentFoodId, 0);
+            return actions;
+        }
+        return null;
     }
 
-    private boolean matches(FoodCombo.ComboConditions conditions,
+    private int countMatches(FoodConditions conditions,
                             Deque<FoodHistoryManager.FoodHistoryEntry> history,
                             long nowMillis) {
-        if (conditions == null) {
-            return false;
-        }
         long windowMillis = Math.max(0L, conditions.maxIntervalSeconds()) * 1000L;
-        int trigger = Math.max(1, conditions.trigger());
 
         String targetFoodId = conditions.foodEngineId();
         Material targetMaterial = conditions.material();
 
         if ((targetFoodId == null || targetFoodId.isEmpty()) && targetMaterial == null) {
-            return false;
+            return 0;
         }
 
         int count = 0;
@@ -83,20 +69,12 @@ public class ComboManager {
 
             if (ok) {
                 count++;
-                if (count >= trigger) {
-                    return true;
-                }
             }
         }
-        return false;
-    }
-
-    public java.util.Map<String, Long> getCooldownsFor(UUID playerId, long nowMillis) {
-        return storage.getCooldownsFor(playerId, nowMillis);
+        return count;
     }
 
     public java.util.Map<String, Integer> getTriggerCountsFor(UUID playerId) {
         return storage.getTriggerCountsFor(playerId);
     }
 }
-

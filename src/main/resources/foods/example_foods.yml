@@ -1,5 +1,5 @@
 foods:
-  green_tea:
+  example_non_condition:
     actions:
       # title
       - "[title] <color:#FFD479>You feel refreshed"
@@ -26,19 +26,15 @@ foods:
       - "[message] <color:#6BFF95>Bonus reward for level 10+!{condition: %player_level% >= 10}"
       - "[chance] 0.50 [command] money give %player_name% 100 -as:console{condition: %player_level% >= 10}"
 
-  black_tea:
-    combo:
-      - conditions:
-          food_engine_id: green_tea
-          max_interval: 60
-          trigger: 2
-        cooldown: 60
-        actions:
-          - "[title] <color:#FFD479>You feel refreshed"
-      - conditions:
-          material: apple
-          max_interval: 60
-          trigger: 3
-        cooldown: 60
-        actions:
-          - "[title] <color:#FFD479>You feel refreshed"
+  example:
+    conditions:
+      food_engine_id: green_tea
+      max_interval: 60
+      trigger: 2
+      # set the max usage trigger
+      overuse_trigger: 5
+    actions:
+      - "[title] <color:#FFD479>You feel refreshed"
+    # if overuse trigger, then execute these actions
+    overuse_actions: 
+      - "[title] <color:#FF6B6B>You have overused the Green Tea combo! A penalty is applied."

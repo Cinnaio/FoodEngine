@@ -125,15 +125,6 @@ public final class FoodEngineCommand implements BasicCommand {
             ));
         }
 
-        Map<String, Long> cooldowns = combos.getCooldownsFor(uuid, System.currentTimeMillis());
-        sender.sendMessage(Component.text("  Combo cooldowns (seconds remaining):").color(NamedTextColor.YELLOW));
-        if (cooldowns.isEmpty()) {
-            sender.sendMessage(Component.text("    <none>").color(NamedTextColor.GRAY));
-        } else {
-            cooldowns.forEach((key, seconds) -> sender.sendMessage(
-                    Component.text("    " + key + " -> " + seconds).color(NamedTextColor.GRAY)
-            ));
-        }
     }
 
     @Override
@@ -176,4 +167,3 @@ public final class FoodEngineCommand implements BasicCommand {
         return suggestions;
     }
 }
-

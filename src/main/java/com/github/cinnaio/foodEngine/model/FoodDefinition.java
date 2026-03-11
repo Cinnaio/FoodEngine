@@ -5,7 +5,7 @@ import java.util.List;
 public record FoodDefinition(
         String id,
         List<ParsedAction> actions,
-        List<FoodCombo> combos
+        FoodConditions conditions,
+        List<ParsedAction> overuseActions
 ) {
 }
-

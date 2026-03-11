@@ -1,6 +1,6 @@
 package com.github.cinnaio.foodEngine.manager;
 
-import com.github.cinnaio.foodEngine.model.FoodCombo;
+import com.github.cinnaio.foodEngine.model.FoodConditions;
 import com.github.cinnaio.foodEngine.model.FoodDefinition;
 import com.github.cinnaio.foodEngine.model.ParsedAction;
 
@@ -17,8 +17,16 @@ public class FoodRegistry {
         foods.clear();
     }
 
-    public void register(String id, List<ParsedAction> actions, List<FoodCombo> combos) {
-        foods.put(id, new FoodDefinition(id, List.copyOf(actions), combos == null ? List.of() : List.copyOf(combos)));
+    public void register(String id,
+                         List<ParsedAction> actions,
+                         FoodConditions conditions,
+                         List<ParsedAction> overuseActions) {
+        foods.put(id, new FoodDefinition(
+                id,
+                actions == null ? List.of() : List.copyOf(actions),
+                conditions,
+                overuseActions == null ? List.of() : List.copyOf(overuseActions)
+        ));
     }
 
     public List<ParsedAction> getActions(String id) {
@@ -34,4 +42,3 @@ public class FoodRegistry {
         return Collections.unmodifiableMap(foods);
     }
 }
-

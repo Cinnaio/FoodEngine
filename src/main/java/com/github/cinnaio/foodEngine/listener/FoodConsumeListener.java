@@ -33,7 +33,6 @@ public class FoodConsumeListener implements Listener {
     private final FoodHistoryManager historyManager;
     private final ComboManager comboManager;
     private final NamespacedKey foodIdKey;
-    private final Map<UUID, Long> lastCooldownNotice = new ConcurrentHashMap<>();
 
     public FoodConsumeListener(FoodEngine plugin,
                                FoodRegistry foodRegistry,
@@ -122,26 +121,27 @@ public class FoodConsumeListener implements Listener {
         }
 
         Deque<FoodHistoryManager.FoodHistoryEntry> history = historyManager.snapshot(player.getUniqueId());
-        List<ParsedAction> comboActions = comboManager.tryTrigger(player.getUniqueId(), foodId, def.combos(), history, now);
-        if (comboActions != null) {
-            if (!comboActions.isEmpty()) {
-                actionManager.executeActions(player, foodId, comboActions);
-                player.sendMessage(plugin.getLanguageManager().component("messages.combo.triggered", player));
-                return; // combo and normal actions are mutually exclusive
+        List<ParsedAction> triggered = comboManager.tryTrigger(
+                player.getUniqueId(),
+                foodId,
+                def.conditions(),
+                def.actions(),
+                def.overuseActions(),
+                history,
+                now
+        );
+        if (triggered != null) {
+            if (!triggered.isEmpty()) {
+                actionManager.executeActions(player, foodId, triggered);
+                return;
             } else {
-                // some combo was on cooldown, but none triggered
-                Long last = lastCooldownNotice.get(player.getUniqueId());
-                long interval = 3000L; // 3 seconds
-                if (last == null || (now - last) >= interval) {
-                    lastCooldownNotice.put(player.getUniqueId(), now);
-                    player.sendMessage(plugin.getLanguageManager().component("messages.combo.cooldown", player));
-                }
+                return;
             }
         }
 
         List<ParsedAction> actions = def.actions();
         if (actions == null || actions.isEmpty()) {
-            if (plugin.isDebug() && (def.combos() == null || def.combos().isEmpty())) {
+            if (plugin.isDebug()) {
                 plugin.getLogger().info("No actions registered for food id '" + foodId + "'");
             }
             return;
@@ -150,4 +150,3 @@ public class FoodConsumeListener implements Listener {
         actionManager.executeActions(player, foodId, actions);
     }
 }
-

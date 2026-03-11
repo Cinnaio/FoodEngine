@@ -11,7 +11,3 @@ messages:
     unknown_subcommand: "<color:#FF6B6B>Unknown subcommand"
     no_food_defined: "<color:#FF6B6B>No food is defined for this item"
     internal: "<color:#FF6B6B>An internal error occurred while processing food effects"
-  combo:
-    triggered: "<color:#FFD479>Food combo activated!"
-    cooldown: "<color:#A0A0A0>Your food combo is on cooldown."
-
