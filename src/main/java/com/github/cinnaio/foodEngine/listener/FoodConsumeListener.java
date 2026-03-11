@@ -111,6 +111,7 @@ public class FoodConsumeListener implements Listener {
         if (foodId == null || foodId.isEmpty()) {
             return;
         }
+        plugin.getDrinkHistoryManager().record(player.getUniqueId(), foodId, now);
 
         FoodDefinition def = foodRegistry.getDefinition(foodId);
         if (def == null) {

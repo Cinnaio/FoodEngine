@@ -12,6 +12,7 @@ public class ConditionParser {
     private final FoodEngine plugin;
     private final boolean hasPlaceholderApi;
     private final Method placeholderSetMethod;
+    private static final ThreadLocal<java.util.Map<String, String>> extraPlaceholders = new ThreadLocal<>();
 
     public ConditionParser(FoodEngine plugin) {
         this.plugin = plugin;
@@ -40,6 +41,16 @@ public class ConditionParser {
         return player -> {
             try {
                 String expr = trimmed;
+                java.util.Map<String, String> ctx = extraPlaceholders.get();
+                if (ctx != null && !ctx.isEmpty()) {
+                    for (var e : ctx.entrySet()) {
+                        String k = e.getKey();
+                        String v = e.getValue();
+                        if (k != null && v != null) {
+                            expr = expr.replace(k, v);
+                        }
+                    }
+                }
                 if (hasPlaceholderApi && player != null) {
                     expr = applyPlaceholders(player, expr);
                 }
@@ -137,5 +148,12 @@ public class ConditionParser {
             default -> false;
         };
     }
-}
 
+    public static void setContext(java.util.Map<String, String> ctx) {
+        extraPlaceholders.set(ctx);
+    }
+
+    public static void clearContext() {
+        extraPlaceholders.remove();
+    }
+}

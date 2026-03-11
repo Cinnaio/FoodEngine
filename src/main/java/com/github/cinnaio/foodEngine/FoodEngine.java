@@ -39,6 +39,7 @@ public final class FoodEngine extends JavaPlugin {
     private FoodConfigLoader foodConfigLoader;
     private NamespacedKey foodIdKey;
     private FoodHistoryManager historyManager;
+    private com.github.cinnaio.foodEngine.manager.DrinkHistoryManager drinkHistoryManager;
     private ComboManager comboManager;
     private ComboStorage comboStorage;
     private FoodHistoryStorage historyStorage;
@@ -63,6 +64,7 @@ public final class FoodEngine extends JavaPlugin {
         this.foodConfigLoader = new FoodConfigLoader(this, actionParser, foodRegistry);
         this.historyStorage = createHistoryStorage();
         this.historyManager = new FoodHistoryManager(20, historyStorage);
+        this.drinkHistoryManager = new com.github.cinnaio.foodEngine.manager.DrinkHistoryManager();
         this.comboStorage = createComboStorage();
         this.comboManager = new ComboManager(comboStorage);
 
@@ -158,6 +160,10 @@ public final class FoodEngine extends JavaPlugin {
 
     public ComboManager getComboManager() {
         return comboManager;
+    }
+
+    public com.github.cinnaio.foodEngine.manager.DrinkHistoryManager getDrinkHistoryManager() {
+        return drinkHistoryManager;
     }
 
     private ComboStorage createComboStorage() {

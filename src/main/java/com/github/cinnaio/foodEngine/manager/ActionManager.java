@@ -66,8 +66,24 @@ public class ActionManager {
     }
 
     private void executeSingle(Player player, String foodId, ParsedAction action) {
-        if (action.getCondition() != null && !action.getCondition().evaluate(player)) {
-            return;
+        if (action.getCondition() != null) {
+            com.github.cinnaio.foodEngine.model.FoodDefinition def = registry.getDefinition(foodId);
+            long windowSeconds = 0L;
+            if (def != null && def.conditions() != null) {
+                windowSeconds = Math.max(0L, def.conditions().maxIntervalSeconds());
+            }
+            long now = System.currentTimeMillis();
+            com.github.cinnaio.foodEngine.manager.DrinkHistoryManager.Result r =
+                    plugin.getDrinkHistoryManager().compute(player.getUniqueId(), foodId, windowSeconds, now);
+            java.util.Map<String, String> ctx = new java.util.HashMap<>();
+            ctx.put("%drink_count%", String.valueOf(r.count()));
+            ctx.put("%drink_interval%", String.valueOf(r.intervalSeconds()));
+            com.github.cinnaio.foodEngine.parser.ConditionParser.setContext(ctx);
+            boolean ok = action.getCondition().evaluate(player);
+            com.github.cinnaio.foodEngine.parser.ConditionParser.clearContext();
+            if (!ok) {
+                return;
+            }
         }
 
         ActionExecutor executor = executors.get(action.getId());
@@ -80,4 +96,3 @@ public class ActionManager {
         executor.execute(player, foodId, action);
     }
 }
-
